@@ -7,7 +7,7 @@ function App() {
   const [display, setDisplay] = useState();
   
   useEffect(() => {
-    axios.get('https://pokeapi.co/api/v2/pokemon?limit=5')
+    axios.get(process.env.REACT_APP_POKEDEX_DATA_API)
       .then((response) => setDisplay(JSON.stringify(response.data)))
       .catch((error) => setDisplay(JSON.stringify(error)))
   }, []);
