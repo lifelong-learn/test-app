@@ -1,15 +1,44 @@
 import logo from './logo.svg';
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useReducer, useEffect } from 'react';
 import axios from 'axios';
 
+const actionType = {
+  SET_POKEDEX_DATA: 'SET_POKEDEX_DATA'
+}
+
+const pokedexReducer = (state = [], action) => {
+  switch(action.type) {
+    case actionType.SET_POKEDEX_DATA:
+      return action.payload;
+    default:
+      return state;
+  }
+}
+
 function App() {
-  const [display, setDisplay] = useState();
-  
+  const [pokemonData, dispatch] = useReducer(pokedexReducer, []);
+
   useEffect(() => {
-    axios.get(process.env.REACT_APP_POKEDEX_DATA_API)
-      .then((response) => setDisplay(JSON.stringify(response.data)))
-      .catch((error) => setDisplay(JSON.stringify(error)))
+    axios.get('https://pokeapi.co/api/v2/pokemon?limit=887')
+      .then(response => response.data.results)
+      .then((results) => {
+        const newPokemonData = {};
+        results.forEach((pokemon, index) => {
+          newPokemonData[`${index + 1}`] = {
+            id: `${index + 1}`,
+            name: pokemon.name,
+            sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' +
+              (index + 1).toString() +
+              '.png'
+          }
+        });
+        dispatch({
+          type: actionType.SET_POKEDEX_DATA,
+          payload: newPokemonData
+        });
+      })
+      .catch((error) => console.log(error))
   }, []);
 
   return (
@@ -27,7 +56,7 @@ function App() {
         >
           Learn React
         </a>
-        <div>{display}</div>
+        <div>{JSON.stringify(pokemonData)}</div>
       </header>
     </div>
   );
